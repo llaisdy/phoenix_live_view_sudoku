@@ -12,11 +12,26 @@ input {
   padding: 0;
 }
 
-input:disabled {
-  font-weight: bold;
-  color: black;
+input.empty {
+  background: white;
 }
 
-input.highlight {
-  background: yellow;
+input.question {
+  font-weight: bold;
+  color: black;
+  background: #ffff66;
+}
+
+input.answer {
+  background: #ffffcc;
+}
+
+p.ok {
+  font-weight: bold;
+  color: green;
+}
+
+p.error {
+  font-weight: bold;
+  color: red;
 }
