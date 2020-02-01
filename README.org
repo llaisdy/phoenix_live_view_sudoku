@@ -1,0 +1,102 @@
+* PhLVS
+
+** Overview
+
+This is a fork of [[https://github.com/dsdshcym/phoenix_live_view_sudoku][phoenix_live_view_sudoku]].  The essential difference is that here clingo is used to do the solving (via python via erlport).  [[read-my-gif.md][read-my-gif]] shows the app in action.
+
+Because solution is more-or-less immediate (less than three hundredths of a second --- see clingo test runs below), I have changed the UI a little bit:
+
+- Instead of "Start Solving" and "Interval", just "Solve";
+- Validity feedback after every entered digit.
+
+An introduction to clingo and answer set programming is beyond the scope of this README, but [[https://llaisdy.co.uk/2015/01/08/solving-greater-than-sudoku-with-answer-set-programming/][Solving “Greater Than” Sudoku with Answer Set Programming]] (a blog post I wrote a few years ago) covers most of the basics.
+
+** Requirements
+
+As well as the dependencies that ~mix deps.get~ will pull in, this project requires [[https://potassco.org/clingo/][clingo]], [[https://www.python.org/][python]] 3.6+, and [[https://pypi.org/project/clyngor][clyngor]].  I haven't tried [[https://pypi.org/project/clyngor-with-clingo/][clyngor-with-clingo]], but that might simplify things a little.
+
+One caveat: for ~maybe_valid_grid~, clyngor needs to access clingo directly, not via clingo's own python API.  If clingo's python module is squatting in the way, ~maybe_valid_grid~ will fail.  The python tests (see below) will catch this.
+
+** Build
+
+#+BEGIN_SRC
+$ mix deps.get
+$ cd apps/sudoku_web/assets/
+$ npm install
+$ cd ../../../  # back to top level
+#+END_SRC
+
+** Test
+
+#+BEGIN_SRC
+$ python -m unittest apps/composer_cli/priv/python/test.py
+$ mix test
+#+END_SRC
+
+The test grids are also available in the ~asp/~ directory for direct testing of the clingo rule file, e.g.:
+
+#+BEGIN_SRC
+$ cd apps/composer_cli/priv/asp/
+
+$ clingo -n 100 sudoku9.lp test_gridbad.lp 
+clingo version 5.4.0
+Reading from sudoku9.lp ...
+Solving...
+UNSATISFIABLE
+
+Models       : 0
+Calls        : 1
+Time         : 0.011s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.011s
+
+$ clingo -n 100 sudoku9.lp test_gridok1.lp
+...
+SATISFIABLE
+
+Models       : 100+  # There are at least 100 possible solutions.
+Calls        : 1
+Time         : 0.025s (Solving: 0.01s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.024s
+
+$ clingo -n 100 sudoku9.lp test_gridok2.lp
+
+clingo version 5.4.0
+Reading from sudoku9.lp ...
+Solving...
+Answer: 1
+cellHasDigit(1,4,7) cellHasDigit(1,8,1) cellHasDigit(1,9,6) cellHasDigit(2,2,9)
+cellHasDigit(2,3,5) cellHasDigit(2,4,3) cellHasDigit(2,7,7) cellHasDigit(2,8,8)
+cellHasDigit(3,7,3) cellHasDigit(4,1,5) cellHasDigit(4,3,2) cellHasDigit(4,5,3)
+cellHasDigit(5,4,5) cellHasDigit(5,5,7) cellHasDigit(6,1,1) cellHasDigit(6,3,6)
+cellHasDigit(6,5,9) cellHasDigit(7,7,5) cellHasDigit(8,2,3) cellHasDigit(8,3,7)
+cellHasDigit(8,4,2) cellHasDigit(8,7,8) cellHasDigit(8,8,6) cellHasDigit(9,4,4)
+cellHasDigit(9,8,3) cellHasDigit(9,9,1) cellHasDigit(1,1,3) cellHasDigit(2,1,6)
+cellHasDigit(3,1,7) cellHasDigit(5,1,9) cellHasDigit(7,1,2) cellHasDigit(8,1,4)
+cellHasDigit(9,1,8) cellHasDigit(1,2,2) cellHasDigit(3,2,1) cellHasDigit(4,2,8)
+cellHasDigit(5,2,4) cellHasDigit(6,2,7) cellHasDigit(7,2,6) cellHasDigit(9,2,5)
+cellHasDigit(1,3,4) cellHasDigit(3,3,8) cellHasDigit(5,3,3) cellHasDigit(7,3,1)
+cellHasDigit(9,3,9) cellHasDigit(3,4,6) cellHasDigit(4,4,1) cellHasDigit(6,4,8)
+cellHasDigit(7,4,9) cellHasDigit(1,5,5) cellHasDigit(2,5,4) cellHasDigit(3,5,2)
+cellHasDigit(7,5,8) cellHasDigit(8,5,1) cellHasDigit(9,5,6) cellHasDigit(1,6,8)
+cellHasDigit(2,6,1) cellHasDigit(3,6,9) cellHasDigit(4,6,4) cellHasDigit(5,6,6)
+cellHasDigit(6,6,2) cellHasDigit(7,6,3) cellHasDigit(8,6,5) cellHasDigit(9,6,7)
+cellHasDigit(1,7,9) cellHasDigit(4,7,6) cellHasDigit(5,7,1) cellHasDigit(6,7,4)
+cellHasDigit(9,7,2) cellHasDigit(3,8,4) cellHasDigit(4,8,9) cellHasDigit(5,8,2)
+cellHasDigit(6,8,5) cellHasDigit(7,8,7) cellHasDigit(2,9,2) cellHasDigit(3,9,5)
+cellHasDigit(4,9,7) cellHasDigit(5,9,8) cellHasDigit(6,9,3) cellHasDigit(7,9,4)
+cellHasDigit(8,9,9)
+SATISFIABLE
+
+Models       : 1     # There is exactly one possible solution.
+Calls        : 1
+Time         : 0.019s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.019s
+#+END_SRC
+
+** Run
+
+#+BEGIN_SRC
+$ mix phx.server
+#+END_SRC
+
+Navigating to: http://localhost:4000/demo
