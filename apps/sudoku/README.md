@@ -1,3 +1,0 @@
-# Sudoku
-
-**TODO: Add description**
