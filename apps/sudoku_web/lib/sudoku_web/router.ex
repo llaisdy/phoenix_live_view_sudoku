@@ -19,7 +19,8 @@ defmodule SudokuWeb.Router do
 
     get "/", PageController, :index
 
-    live "/demo", DemoLive
+    live "/sudoku9", Sudoku9
+    live "/sudoku6", Sudoku6
   end
 
   # Other scopes may use custom stacks.

@@ -7,7 +7,8 @@ This is a fork of [[https://github.com/dsdshcym/phoenix_live_view_sudoku][phoeni
 Because solution is more-or-less immediate (less than three hundredths of a second --- see clingo test runs below), I have changed the UI a little bit:
 
 - Instead of "Start Solving" and "Interval", just "Solve";
-- Validity feedback after every entered digit.
+- Validity feedback after every entered digit;
+- Number of possible solutions shown.
 
 An introduction to clingo and answer set programming is beyond the scope of this README, but [[https://llaisdy.co.uk/2015/01/08/solving-greater-than-sudoku-with-answer-set-programming/][Solving “Greater Than” Sudoku with Answer Set Programming]] (a blog post I wrote a few years ago) covers most of the basics.
 
@@ -100,3 +101,10 @@ $ mix phx.server
 #+END_SRC
 
 Navigating to: http://localhost:4000/demo
+** Next Steps
+
+Some directions I might take this:
+
+- MOAR puzzles!!!
+- Richer feedback for the composer
+- visualisation and UI for other ASP applications (scheduling, traffic control, music generation, protein design, etc.)

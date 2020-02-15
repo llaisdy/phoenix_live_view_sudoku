@@ -1,21 +1,27 @@
-defmodule SudokuWeb.DemoLive do
+defmodule SudokuWeb.Sudoku9 do
   use Phoenix.LiveView
 
   def render(assigns) do
     ~L"""
     <form phx-change="maybe_valid_grid" phx-submit="maybe_solve">
       <div class="sudoku">
-      <%= for i <- 1..9 do %>
-        <div>
-          <%= for j <- 1..9 do %>
-            <input
-	     pattern="[1-9]" maxlength="1" size="1" name="input[<%= i %>][<%= j %>]"
-	     value="<%= sudoku_value(@sudoku, {i, j}) %>"
-	     class="<%= sudoku_style(@sudoku, {i, j}) %>"
-	     />
-          <% end %>
-        </div>
-      <% end %>
+      <table>
+        <colgroup><col><col><col>
+        <colgroup><col><col><col>
+        <colgroup><col><col><col>
+            <%= for row <- 1..9 do %>
+              <tr>
+                <%= for col <- 1..9 do %>
+                  <td><input
+                         pattern="[1-9]" maxlength="1" size="1" name="input[<%= row %>][<%= col %>]"
+                         value="<%= sudoku_value(@sudoku, {row, col}) %>"
+                         class="<%= sudoku_style(@sudoku, {row, col}) %>"
+                       /></td>
+                <% end %>
+              </tr>
+              <%= maybe_tbody(row) %>
+            <% end %>
+      </table>
       </div>
 
       <button>Solve</button>
@@ -24,20 +30,11 @@ defmodule SudokuWeb.DemoLive do
     """
   end
 
-  def sudoku_value(smap, key) do
-      case Map.get(smap, key) do
-        nil        -> ''
-	{value, _} -> value
-	value      -> value
-      end
-  end
-
-  def sudoku_style(smap, key) do
-      case Map.get(smap, key) do
-	{_, style} -> style
-	nil        -> 'empty'
-	_          -> 'question'
-      end
+  def maybe_tbody(row) do
+    case Enum.member?([3,6], row) do
+      :true  -> Phoenix.HTML.raw "<tbody>"
+      :false -> ""
+    end
   end
 
   def mount(_session, socket) do
@@ -54,7 +51,7 @@ defmodule SudokuWeb.DemoLive do
   def handle_event("maybe_valid_grid", %{"input" => input}, socket) do
     smap = map_sudoku(input)
 
-    {class, message} = ElixirPython.maybe_valid_grid(smap)
+    {class, message} = ElixirPython.maybe_valid_grid(smap, :sudoku9)
     {:noreply, assign(socket,
                       message: message,
 	              message_class: class,
@@ -64,7 +61,7 @@ defmodule SudokuWeb.DemoLive do
   def handle_event("maybe_solve", %{"input" => input}, socket) do
     smap = map_sudoku(input)
 
-    case ElixirPython.maybe_solution(smap) do
+    case ElixirPython.maybe_solution(smap, :sudoku9) do
       {'ok', new_sudoku} ->
 	{:noreply, assign(socket,
 	    message: 'Solved!',
@@ -77,7 +74,7 @@ defmodule SudokuWeb.DemoLive do
     end
   end
 
-  defp map_sudoku(input) do
+  def map_sudoku(input) do
       for {row_str, num_strs_by_col_str} <- input,
           {col_str, num_str} <- num_strs_by_col_str,
           num_str != "",
@@ -89,4 +86,19 @@ defmodule SudokuWeb.DemoLive do
       end
   end
 
+  def sudoku_value(smap, key) do
+      case Map.get(smap, key) do
+        nil        -> ''
+	{value, _} -> value
+	value      -> value
+      end
+  end
+
+  def sudoku_style(smap, key) do
+    case Map.get(smap, key) do
+      {_, style} -> List.to_string(style)
+      nil        -> "empty"
+      _          -> "question"
+    end
+  end
 end

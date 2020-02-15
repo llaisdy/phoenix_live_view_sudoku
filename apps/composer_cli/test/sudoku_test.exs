@@ -1,6 +1,5 @@
 defmodule SudokuTest do
   use ExUnit.Case
-  doctest ComposerCli
 
   test "returns a solved Sudoku as it is" do
     input = [
@@ -100,7 +99,7 @@ defmodule SudokuTest do
   defp test_solve(input) do
     case input
     |> input_to_map()
-    |> ElixirPython.maybe_solution() do
+    |> ElixirPython.maybe_solution(:sudoku9) do
       {'ok', solution} -> map_to_output(solution)
       {'error', _}     -> :error
     end

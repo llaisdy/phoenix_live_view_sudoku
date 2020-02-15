@@ -3,6 +3,10 @@
 @import "./phoenix.css";
 @import "../../../../deps/phoenix_live_view/assets/css/live_view.css";
 
+
+table { border-collapse: collapse; }
+colgroup, tbody { border: solid medium; }
+
 input {
   font-size: inherit;
   text-align: center;
@@ -10,6 +14,26 @@ input {
   height: 5em;
   margin: 3px 0 0 0;
   padding: 0;
+}
+
+input.innerNE {
+    border-top: solid black;
+    border-right: solid black;
+}
+
+input.innerNW {
+    border-top: solid black;
+    border-left: solid black;
+}
+
+input.innerSE {
+    border-bottom: solid black;
+    border-right: solid black;
+}
+
+input.innerSW {
+    border-bottom: solid black;
+    border-left: solid black;
 }
 
 input.empty {
